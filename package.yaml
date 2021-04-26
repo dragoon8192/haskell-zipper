@@ -26,6 +26,8 @@ library:
   source-dirs: src
   dependencies:
     - comonad
+  default-extensions:
+    - DeriveFunctor
 
 executables:
   zipper-exe:

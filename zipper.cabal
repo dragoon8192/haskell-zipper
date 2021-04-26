@@ -31,6 +31,7 @@ library
       Paths_zipper
   hs-source-dirs:
       src
+  default-extensions: DeriveFunctor
   build-depends:
       base >=4.7 && <5
     , comonad
