@@ -14,13 +14,7 @@ data Zipper a = MkZipper [a] a [a]
   deriving (Functor)
 
 instance (Show a) => Show (Zipper a) where
-  show (MkZipper ls c rs) = (show . reverse) ls ++ show c ++ show rs
-
-showV :: (Show a) => Zipper a -> String
-showV (MkZipper ls c rs) = (showV . reverse) ls ++ " " ++ show c ++ " \n" ++ showV rs
-  where
-    showV [] = ""
-    showV (x:xs) = "|" ++ show x ++ "|\n" ++ showV xs
+  show (MkZipper ls c rs) = (show . reverse) ls ++"+"++ show c ++"+"++ show rs
 
 instance Comonad Zipper where
   extract (MkZipper _ c _)  = c
