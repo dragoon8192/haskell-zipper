@@ -28,6 +28,7 @@ library:
     - comonad
   default-extensions:
     - DeriveFunctor
+    - GADTs
 
 executables:
   zipper-exe:

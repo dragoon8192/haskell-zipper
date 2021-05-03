@@ -1,6 +1,11 @@
 module Main where
 
-import Lib
+import Zipper
 
 main :: IO ()
-main = someFunc
+main = do
+  let z = listToZipper [0..3]
+  print z
+  print . left $ z
+  print . right $ z
+  print . extract $ z

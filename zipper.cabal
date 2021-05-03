@@ -25,13 +25,14 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      Comonad2
       Zipper
+      Zipper2
   other-modules:
       Paths_zipper
   hs-source-dirs:
       src
-  default-extensions: DeriveFunctor
+  default-extensions: DeriveFunctor GADTs
   build-depends:
       base >=4.7 && <5
     , comonad

@@ -1,18 +1,26 @@
-module Zipper
-  ( Zipper (MkZipper), left, right
+module Zipper (
+    Zipper(MkZipper), left, right, listToZipper,
+    module Control.Comonad
   ) where
 import Control.Comonad
 import Control.Monad
 import Data.Maybe
+import Data.List
 
+--------------------------
+-- Zipper
+--------------------------
 data Zipper a = MkZipper [a] a [a]
-  deriving (Show, Functor)
+  deriving (Functor)
 
-left, right :: Zipper a -> Maybe (Zipper a)
-left  (MkZipper [] _ _) = Nothing
-left  (MkZipper (l:ls) c rs) = Just $ MkZipper ls l (c:rs)
-right (MkZipper _ _ []) = Nothing
-right (MkZipper ls c (r:rs)) = Just $ MkZipper (c:ls) r rs
+instance (Show a) => Show (Zipper a) where
+  show (MkZipper ls c rs) = (show . reverse) ls ++ show c ++ show rs
+
+showV :: (Show a) => Zipper a -> String
+showV (MkZipper ls c rs) = (showV . reverse) ls ++ " " ++ show c ++ " \n" ++ showV rs
+  where
+    showV [] = ""
+    showV (x:xs) = "|" ++ show x ++ "|\n" ++ showV xs
 
 instance Comonad Zipper where
   extract (MkZipper _ c _)  = c
@@ -23,7 +31,28 @@ instance Comonad Zipper where
 
 iterateMaybe :: (a -> Maybe a) -> a -> [a]
 iterateMaybe f = catMaybes . takeWhile isJust . iterateM f . Just
-  --Nothing の連続に対応するため takeWhile isJust
+--Nothing の連続に対応するため takeWhile isJust
   where
     iterateM :: (Monad m) => (a -> m a) -> m a -> [m a]
     iterateM = iterate . (=<<)
+
+left, right :: Zipper a -> Maybe (Zipper a)
+left  (MkZipper [] _ _) = Nothing
+left  (MkZipper (l:ls) c rs) = Just $ MkZipper ls l (c:rs)
+right (MkZipper _ _ []) = Nothing
+right (MkZipper ls c (r:rs)) = Just $ MkZipper (c:ls) r rs
+
+listToZipper :: [a] -> Zipper a
+listToZipper (x:xs) = MkZipper [] x xs
+
+--innerDupulicate :: (Functor f) => f (Zipper a) -> Zipper (f (Zipper a))
+--innerDupulicate fz = MkZipper ls fz rs
+--  where
+--    ls = tail . iterateMaybe leftF $ fz
+--    rs = tail . iterateMaybe rightF $ fz
+--
+--leftF, rightF :: (Functor f) => f (Zipper a) -> Maybe (f (Zipper a))
+--leftF = fmap left
+--leftF  (MkZipper (l:ls) c rs) = Just $ MkZipper ls l (c:rs)
+--rightF (MkZipper _ _ []) = Nothing
+--rightF (MkZipper ls c (r:rs)) = Just $ MkZipper (c:ls) r rs
