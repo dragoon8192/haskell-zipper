@@ -26,6 +26,8 @@ library:
   source-dirs: src
   dependencies:
     - comonad
+    - mtl
+    - transformers
   default-extensions:
     - DeriveFunctor
     - GADTs

@@ -24,11 +24,8 @@ instance Comonad Zipper where
       rs = tail . iterateMaybe right $ z
 
 iterateMaybe :: (a -> Maybe a) -> a -> [a]
-iterateMaybe f = catMaybes . takeWhile isJust . iterateM f . Just
+iterateMaybe f = catMaybes . takeWhile isJust . iterate (f=<<) . Just
 --Nothing の連続に対応するため takeWhile isJust
-  where
-    iterateM :: (Monad m) => (a -> m a) -> m a -> [m a]
-    iterateM = iterate . (=<<)
 
 left, right :: Zipper a -> Maybe (Zipper a)
 left  (MkZipper [] _ _) = Nothing
@@ -39,14 +36,19 @@ right (MkZipper ls c (r:rs)) = Just $ MkZipper (c:ls) r rs
 listToZipper :: [a] -> Zipper a
 listToZipper (x:xs) = MkZipper [] x xs
 
---innerDupulicate :: (Functor f) => f (Zipper a) -> Zipper (f (Zipper a))
---innerDupulicate fz = MkZipper ls fz rs
---  where
---    ls = tail . iterateMaybe leftF $ fz
---    rs = tail . iterateMaybe rightF $ fz
---
---leftF, rightF :: (Functor f) => f (Zipper a) -> Maybe (f (Zipper a))
---leftF = fmap left
---leftF  (MkZipper (l:ls) c rs) = Just $ MkZipper ls l (c:rs)
---rightF (MkZipper _ _ []) = Nothing
---rightF (MkZipper ls c (r:rs)) = Just $ MkZipper (c:ls) r rs
+innerDupulicate :: (Comonad w) => w (Zipper a) -> Zipper (w (Zipper a))
+innerDupulicate wz = MkZipper ls wz rs
+  where
+    ls = tail . iterateMaybe leftW $ wz
+    rs = tail . iterateMaybe rightW $ wz
+    leftW, rightW :: (Comonad w) => w (Zipper a) -> Maybe (w (Zipper a))
+    leftW = wMb2MbW . fmap left
+    rightW= wMb2MbW . fmap right
+
+  -- MaybeT w ~= w ○ Maybe の w と Maybe を交換
+wMb2MbW  :: (Comonad w) => w (Maybe a)-> Maybe(w a)
+wMb2MbW wMbA =
+  if isJust . extract $ wMbA
+  then Just . fmap fromJust $ wMbA
+  else const Nothing $ wMbA
+  -- extract の結果を信用して他も取り出すので危険
