@@ -32,7 +32,7 @@ library
       Paths_zipper
   hs-source-dirs:
       src
-  default-extensions: DeriveFunctor GADTs
+  default-extensions: DeriveFunctor GADTs Arrows
   build-depends:
       base >=4.7 && <5
     , comonad
