@@ -1,6 +1,7 @@
 module Zipper (
     Zipper(MkZipper), left, right, listToZipper, zipperToList,
     iterateMaybe,
+    Nbhd(neighbourhood),
     module Control.Comonad
   ) where
 import Control.Comonad
@@ -8,22 +9,24 @@ import Control.Monad
 import Data.Maybe
 import Data.List
 
---------------------------
--- Zipper
---------------------------
 data Zipper a = MkZipper [a] a [a]
   deriving (Functor)
-
 instance (Show a) => Show (Zipper a) where
   show (MkZipper ls c rs) =
     (show . reverse) ls ++ '+' : show c ++ '+' : show rs
-
 instance Comonad Zipper where
   extract (MkZipper _ c _)  = c
   duplicate z = MkZipper ls z rs
     where
       ls = tail . iterateMaybe left $ z
       rs = tail . iterateMaybe right $ z
+
+class Nbhd w where
+  neighbourhood :: w a -> [a]
+instance Nbhd Zipper where
+  neighbourhood z = fmap extract zs
+    where
+      zs = catMaybes [f z | f <- [left,Just,right]]
 
 iterateMaybe :: (a -> Maybe a) -> a -> [a]
 iterateMaybe f =
