@@ -28,6 +28,7 @@ library
       Comonad2
       Zipper
       Zipper2
+      ZipperT
   other-modules:
       Paths_zipper
   hs-source-dirs:
