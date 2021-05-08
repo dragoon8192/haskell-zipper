@@ -1,12 +1,14 @@
 module ZipperT (
     ZipperT(MkZipperT,runZipperT),
-    module Control.Comonad
+    module Control.Comonad,
+    module Data.Functor.Classes
   ) where
 import Control.Comonad
 import Control.Comonad.Trans.Class
 import Control.Monad
 import Data.Maybe
 import Data.List
+import Data.Functor.Classes
 import Zipper
 
 newtype ZipperT w a = MkZipperT {runZipperT :: w (Zipper a)}
@@ -17,6 +19,16 @@ instance (Comonad w) => Comonad (ZipperT w) where
   extract = extract . extract . runZipperT
   duplicate = fmap MkZipperT . MkZipperT
               . fmap innerDupulicate . duplicate . runZipperT
+instance (Show1 w) => Show1 (ZipperT w) where
+  liftShowsPrec sp sl d (MkZipperT wZa) =
+    showsUnaryWith (liftShowsPrec sp' sl') "ZipperT" d wZa
+     where
+       sp' = liftShowsPrec sp sl
+       sl' = liftShowList sp sl
+instance (Show1 w, Show a) => Show (ZipperT w a) where
+  showsPrec = showsPrec1
+test = show :: ZipperT Zipper Integer -> String
+
 instance (Nbhd w) => Nbhd (ZipperT w) where
   neighbourhood = neighbourhood <=< neighbourhood . runZipperT
 

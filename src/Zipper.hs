@@ -2,18 +2,25 @@ module Zipper (
     Zipper(MkZipper), left, right, listToZipper, zipperToList,
     iterateMaybe,
     Nbhd(neighbourhood),
-    module Control.Comonad
+    module Control.Comonad,
+    module Data.Functor.Classes
   ) where
 import Control.Comonad
 import Control.Monad
 import Data.Maybe
 import Data.List
+import Data.Functor.Classes
 
-data Zipper a = MkZipper [a] a [a]
+data Zipper a
+  = MkZipper {leftList :: [a], center :: a, rightList :: [a]}
   deriving (Functor)
+instance Show1 Zipper where
+  liftShowsPrec sp sl d (MkZipper ls c rs) =
+    (sl . reverse $ ls)
+    . ('<':) . sp d c . ('>':)
+    . sl rs
 instance (Show a) => Show (Zipper a) where
-  show (MkZipper ls c rs) =
-    (show . reverse) ls ++ '+' : show c ++ '+' : show rs
+  showsPrec = showsPrec1
 instance Comonad Zipper where
   extract (MkZipper _ c _)  = c
   duplicate z = MkZipper ls z rs

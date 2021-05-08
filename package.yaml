@@ -20,18 +20,17 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/dragoon8192/zipper#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+  - base >= 4.7 && < 5
+  - comonad
+  - mtl
+  - transformers
+default-extensions:
+  - DeriveFunctor
+  - GADTs
+  - Arrows
 
 library:
   source-dirs: src
-  dependencies:
-    - comonad
-    - mtl
-    - transformers
-  default-extensions:
-    - DeriveFunctor
-    - GADTs
-    - Arrows
 
 executables:
   zipper-exe:
