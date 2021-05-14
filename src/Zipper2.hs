@@ -1,12 +1,8 @@
 module Zipper2 (
     Zipper2, listToZipper2
   ) where
-import Control.Comonad
-import Control.Monad
-import Data.Maybe
-import Data.List
-import Zipper
-import ZipperT
+import Zipper ( listToZipper, zipperToList, Zipper )
+import ZipperT ( ZipperT(..) )
 
 type Zipper2 = ZipperT Zipper
 

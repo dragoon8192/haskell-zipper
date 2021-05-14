@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      LifeGame
       Zipper
       Zipper2
       ZipperT

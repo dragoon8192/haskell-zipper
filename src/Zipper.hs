@@ -2,14 +2,11 @@ module Zipper (
     Zipper(MkZipper), left, right, listToZipper, zipperToList,
     iterateMaybe,
     Nbhd(neighbourhood),
-    module Control.Comonad,
-    module Data.Functor.Classes
+    duplicate,
   ) where
-import Control.Comonad
-import Control.Monad
-import Data.Maybe
-import Data.List
-import Data.Functor.Classes
+import Control.Comonad ( Comonad(duplicate, extract) )
+import Data.Maybe ( catMaybes, isJust )
+import Data.Functor.Classes ( showsPrec1, Show1(liftShowsPrec) )
 
 data Zipper a
   = MkZipper {leftList :: [a], center :: a, rightList :: [a]}

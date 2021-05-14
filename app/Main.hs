@@ -13,6 +13,5 @@ main = do
            ] :: Zipper2 Integer
   print zz
   print . duplicate $ zz
-  putStr "neighbourhood"
   print . neighbourhood $ zz
   print . neighbourhood .duplicate $ zz
