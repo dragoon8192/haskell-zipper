@@ -1,7 +1,8 @@
 module Zipper2 (
-    Zipper2, listToZipper2
+    Zipper2, listToZipper2,zipperToList2,
+    Nbhd(..),
   ) where
-import Zipper ( listToZipper, zipperToList, Zipper )
+import Zipper ( listToZipper, zipperToList, Zipper, Nbhd(..) )
 import ZipperT ( ZipperT(..) )
 
 type Zipper2 = ZipperT Zipper

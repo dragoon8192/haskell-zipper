@@ -1,6 +1,6 @@
 module ZipperT (
     ZipperT(MkZipperT,runZipperT),
-    duplicate,
+    Comonad(..),Nbhd(..),
   ) where
 import Control.Comonad ( Comonad(duplicate, extract) )
 import Control.Comonad.Trans.Class ( ComonadTrans(..) )

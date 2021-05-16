@@ -24,6 +24,7 @@ dependencies:
   - comonad
   - mtl
   - transformers
+  - ansi-terminal
 default-extensions:
   - DeriveFunctor
   - GADTs
