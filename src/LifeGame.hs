@@ -14,19 +14,12 @@ import Control.Concurrent ( threadDelay )
 data LifeCell = Dead | Birth | Live | Dying
   deriving (Show, Enum)
 
-showIcon :: LifeCell -> String
-showIcon Dead   = "  "
-showIcon Birth  = "🌱"
-showIcon Live   = "🍄"
-showIcon Dying  = " ."
-
-charToBool :: Char -> Bool
-charToBool = ('1'==)
 boolToLifeCell :: Bool -> LifeCell
 boolToLifeCell True = Live
 boolToLifeCell False = Dead
+
 charToLifeCell :: Char -> LifeCell
-charToLifeCell = boolToLifeCell . charToBool
+charToLifeCell = boolToLifeCell . ('1'==)
 
 strListToLifeGame :: [[Char]] -> LifeGame
 strListToLifeGame = listToZipper2 . map (map charToLifeCell)
@@ -49,19 +42,27 @@ life zzc
     cellIs = lifeCellToBool . extract $ zzc
     nbhdsCount = length . filter lifeCellToBool . neighbourhood $ zzc
 
+lifeGoes :: LifeGame -> LifeGame
 lifeGoes = extend life
-
-showIcons :: LifeGame -> String
-showIcons = unlines . fmap concat . zipperToList2 . fmap showIcon
 
 ------
 -- IO
 ------
+
 getLifeGameFromFile :: String -> IO LifeGame
 getLifeGameFromFile filename = do
   contents <- hGetContents =<<
     openFile filename ReadMode
   return . strListToLifeGame . lines $ contents
+
+showIcon :: LifeCell -> String
+showIcon Dead   = "  "
+showIcon Birth  = "🌱"
+showIcon Live   = "🍄"
+showIcon Dying  = " ."
+
+showIcons :: LifeGame -> String
+showIcons = unlines . fmap concat . zipperToList2 . fmap showIcon
 
 loopOut :: LifeGame -> IO LifeGame
 loopOut lg = loopLc n lg
