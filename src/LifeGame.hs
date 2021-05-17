@@ -18,7 +18,7 @@ showIcon :: LifeCell -> String
 showIcon Dead   = "  "
 showIcon Birth  = "🌱"
 showIcon Live   = "🍄"
-showIcon Dying  = "--"
+showIcon Dying  = " ."
 
 charToBool :: Char -> Bool
 charToBool = ('1'==)
