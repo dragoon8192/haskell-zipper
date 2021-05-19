@@ -24,6 +24,12 @@ instance Comonad Zipper where
     where
       ls = tail . iterateMaybe left $ z
       rs = tail . iterateMaybe right $ z
+instance Applicative Zipper where
+  pure x = MkZipper (repeat x) x (repeat x)
+  (MkZipper lfs cf rfs) <*> (MkZipper lxs cx rxs)
+    = MkZipper  (zipWith ($) lfs lxs)
+                (cf cx)
+                (zipWith ($) rfs rxs)
 
 class Nbhd w where
   neighbourhood :: w a -> [a]
