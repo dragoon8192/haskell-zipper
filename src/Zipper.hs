@@ -1,16 +1,16 @@
 module Zipper (
     Zipper(MkZipper), left, right, listToZipper, zipperToList,
-    iterateMaybe,
-    Nbhd(neighbourhood),
-    duplicate,
+    iterateZipMb, iterateZip,
+    Comonad(..), Nbhd(..),
   ) where
-import Control.Comonad ( Comonad(duplicate, extract) )
-import Data.Maybe ( catMaybes, isJust )
+import Control.Comonad ( Comonad(..) )
+import Data.Maybe ( isJust, catMaybes, fromJust )
 import Data.Functor.Classes ( showsPrec1, Show1(liftShowsPrec) )
 
 data Zipper a
   = MkZipper {leftList :: [a], center :: a, rightList :: [a]}
   deriving (Functor)
+
 instance Show1 Zipper where
   liftShowsPrec sp sl d (MkZipper ls c rs) =
     (sl . reverse $ ls)
@@ -20,16 +20,15 @@ instance (Show a) => Show (Zipper a) where
   showsPrec = showsPrec1
 instance Applicative Zipper where
   pure x = MkZipper (repeat x) x (repeat x)
+  -- 自信ないなあ
   (<*>) (MkZipper fls fc frs) (MkZipper xls xc xrs)
     = MkZipper  (zipWith ($) fls xls)
                 (fc xc)
                 (zipWith ($) frs xrs)
+
 instance Comonad Zipper where
   extract (MkZipper _ c _)  = c
-  duplicate z = MkZipper ls z rs
-    where
-      ls = tail . iterateMaybe left $ z
-      rs = tail . iterateMaybe right $ z
+  duplicate = iterateZipMb left right
 
 class Nbhd w where
   neighbourhood :: w a -> [a]
@@ -38,10 +37,24 @@ instance Nbhd Zipper where
     where
       zs = catMaybes [f z | f <- [left,Just,right]]
 
-iterateMaybe :: (a -> Maybe a) -> a -> [a]
-iterateMaybe f =
-  catMaybes . takeWhile isJust . iterate (f=<<) . Just
---Nothing の連続に対応するため takeWhile isJust
+fromZipJust :: Zipper (Maybe a) -> Zipper a
+fromZipJust = fromJust . zipMbToMbZip
+  where
+    zipMbToMbZip :: Zipper (Maybe a) -> Maybe (Zipper a)
+    zipMbToMbZip (MkZipper _ Nothing _) = Nothing
+    zipMbToMbZip (MkZipper mls (Just c) mrs)
+      = Just $ MkZipper ls c rs
+        where
+          ls = catMaybes . takeWhile isJust $ mls
+          rs = catMaybes . takeWhile isJust $ mrs
+          --Nothing の連続に対応するため takeWhile isJust
+
+iterateZip :: (a -> a) -> (a -> a) -> a -> Zipper a
+-- fl . fr = id を想定
+iterateZip fl fr x = MkZipper (iterate fl (fl x)) x (iterate fr (fr x))
+
+iterateZipMb :: (a -> Maybe a) -> (a -> Maybe a) -> a -> Zipper a
+iterateZipMb fl fr = fromZipJust . iterateZip (fl=<<) (fr=<<) . Just
 
 left, right :: Zipper a -> Maybe (Zipper a)
 left  (MkZipper [] _ _) = Nothing

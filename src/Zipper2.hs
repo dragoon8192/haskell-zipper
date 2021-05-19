@@ -1,5 +1,5 @@
 module Zipper2 (
-    Zipper2, listToZipper2,zipperToList2,
+    Zipper2, listToZipper2, zipperToList2,
     Nbhd(..),
   ) where
 import Zipper ( listToZipper, zipperToList, Zipper, Nbhd(..) )
