@@ -41,13 +41,12 @@ fromZipJust :: Zipper (Maybe a) -> Zipper a
 fromZipJust = fromJust . zipMbToMbZip
   where
     zipMbToMbZip :: Zipper (Maybe a) -> Maybe (Zipper a)
-    zipMbToMbZip (MkZipper _ Nothing _) = Nothing
-    zipMbToMbZip (MkZipper mls (Just c) mrs)
-      = Just $ MkZipper ls c rs
-        where
-          ls = catMaybes . takeWhile isJust $ mls
-          rs = catMaybes . takeWhile isJust $ mrs
-          --Nothing の連続に対応するため takeWhile isJust
+    -- zipMbToMbZip (MkZipper _ Nothing _) = Nothing
+    zipMbToMbZip = Just . zMap (catMaybes . takeWhile isJust)
+      -- Nothing の連続に対応するため takeWhile isJust
+
+zMap :: ([a] -> [b]) -> Zipper a -> Zipper b
+zMap f (MkZipper ls c rs) = MkZipper (f ls) (head . f $ [c]) (f rs)
 
 iterateZip :: (a -> a) -> (a -> a) -> a -> Zipper a
 -- fl . fr = id を想定
