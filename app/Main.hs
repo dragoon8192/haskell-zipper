@@ -1,6 +1,7 @@
 module Main where
 
 import LifeGame
+import LifeGame.Console
 
 main :: IO ()
 main = do

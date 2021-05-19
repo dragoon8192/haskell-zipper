@@ -1,15 +1,12 @@
 module LifeGame (
   LifeCell(..), LifeGame(..),
   life, lifeGoes,
-  getLifeGameFromFile, loopOut
+  getLifeGameFromFile,
   ) where
-import Zipper2
-    ( Nbhd(neighbourhood), listToZipper2, zipperToList2, Zipper2 )
+import Zipper2 ( listToZipper2, Nbhd(neighbourhood), Zipper2 )
 import Control.Comonad ( Comonad(extend, extract) )
+import Control.Monad
 import System.IO ( openFile, hGetContents, IOMode(ReadMode) )
-import System.Console.ANSI
-    ( clearFromCursorToScreenEnd, cursorUpLine )
-import Control.Concurrent ( threadDelay )
 
 data LifeCell = Dead | Birth | Live | Dying
   deriving (Show, Enum)
@@ -34,13 +31,16 @@ type LifeGame = Zipper2 LifeCell
 
 life :: LifeGame -> LifeCell
 life zzc
-  | cellIs && nbhdsCount > 2 && nbhdsCount < 5  = Live
-  | cellIs && otherwise                         = Dying
-  | not cellIs && nbhdsCount == 3               = Birth
+  | cellIs      && elem nbhdsCount liveCounts   = Live
+  | cellIs      && otherwise                    = Dying
+  | not cellIs  && elem nbhdsCount birthCounts  = Birth
   | otherwise                                   = Dead
   where
     cellIs = lifeCellToBool . extract $ zzc
     nbhdsCount = length . filter lifeCellToBool . neighbourhood $ zzc
+    liveCounts = [3, 4]
+    -- 自分自身も含んでいる
+    birthCounts = [3]
 
 lifeGoes :: LifeGame -> LifeGame
 lifeGoes = extend life
@@ -50,27 +50,12 @@ lifeGoes = extend life
 ------
 
 getLifeGameFromFile :: String -> IO LifeGame
-getLifeGameFromFile filename = do
-  contents <- hGetContents =<<
-    openFile filename ReadMode
-  return . strListToLifeGame . lines $ contents
+getLifeGameFromFile =
+  flip openFile ReadMode
+  >=> hGetContents
+  >=> return . strListToLifeGame . lines
 
-showIcon :: LifeCell -> String
-showIcon Dead   = "  "
-showIcon Birth  = "🌱"
-showIcon Live   = "🍄"
-showIcon Dying  = " ."
-
-showIcons :: LifeGame -> String
-showIcons = unlines . fmap concat . zipperToList2 . fmap showIcon
-
-loopOut :: LifeGame -> IO LifeGame
-loopOut lg = loopLc n lg
-  where
-    n = length . zipperToList2 $ lg
-    loopLc m x = do
-      putStr . showIcons $ x
-      threadDelay $ 500 * 1000
-      cursorUpLine n
-      clearFromCursorToScreenEnd
-      loopLc m . lifeGoes $ x
+--getLifeGameFromFile filename = do
+--  contents <- hGetContents =<<
+--    openFile filename ReadMode
+--  return . strListToLifeGame . lines $ contents
