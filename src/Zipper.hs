@@ -18,18 +18,18 @@ instance Show1 Zipper where
     . sl rs
 instance (Show a) => Show (Zipper a) where
   showsPrec = showsPrec1
+instance Applicative Zipper where
+  pure x = MkZipper (repeat x) x (repeat x)
+  (<*>) (MkZipper fls fc frs) (MkZipper xls xc xrs)
+    = MkZipper  (zipWith ($) fls xls)
+                (fc xc)
+                (zipWith ($) frs xrs)
 instance Comonad Zipper where
   extract (MkZipper _ c _)  = c
   duplicate z = MkZipper ls z rs
     where
       ls = tail . iterateMaybe left $ z
       rs = tail . iterateMaybe right $ z
-instance Applicative Zipper where
-  pure x = MkZipper (repeat x) x (repeat x)
-  (MkZipper lfs cf rfs) <*> (MkZipper lxs cx rxs)
-    = MkZipper  (zipWith ($) lfs lxs)
-                (cf cx)
-                (zipWith ($) rfs rxs)
 
 class Nbhd w where
   neighbourhood :: w a -> [a]
